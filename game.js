@@ -41,4 +41,126 @@ Game.prototype.update=function(time,delta){let dt=Math.min(delta/1000,.05);this.
 Game.prototype.drawWorld=function(){const g=this.roomGraphics;g.clear();const r=this.room(),time=this.time.now/1000;const forest=r.x<2&&r.y<2,water=r.x===3&&r.y===1,ruin=r.x===4&&r.y>=2;const base=water?0x537c5a:forest?0x315f44:ruin?0x777e68:0x518b54;g.fillStyle(0x122a2c).fillRoundedRect(8,88,374,467,9);for(let j=0;j<ROWS;j++)for(let i=0;i<COLS;i++){let tile=r.tiles[j][i],x=OX+i*T,y=OY+j*T,seed=(i*193+j*379+r.x*17+r.y*41)%101;g.fillStyle(seed%3===0?Phaser.Display.Color.IntegerToColor(base).darken(5).color:base).fillRect(x,y,T,T);if(tile===0){if(seed%7===0){g.lineStyle(1.5,seed%2?0x8ac779:0x306c4b,.8).lineBetween(x+8,y+20,x+10,y+14).lineBetween(x+10,y+14,x+13,y+19);}if(seed%17===0){g.fillStyle(0xf7df9a,.9).fillCircle(x+16,y+13,2);g.fillStyle(0xffffff,.7).fillCircle(x+17,y+12,.8);}if(seed%23===0){g.fillStyle(0x536b53,.55).fillEllipse(x+13,y+24,11,4);g.fillStyle(0xa4ad8d).fillEllipse(x+13,y+21,8,5);}}else if(tile===1){g.fillStyle(0x263b40,.55).fillEllipse(x+15,y+26,28,10);g.fillStyle(0x596b75).fillRoundedRect(x+1,y+2,28,26,5);g.fillStyle(0x82919a).fillRoundedRect(x+3,y+2,24,9,3);g.lineStyle(1,0x3b4c56).lineBetween(x+16,y+12,x+13,y+19).lineBetween(x+13,y+19,x+20,y+24);}else if(tile===2){g.fillStyle(0x203e31,.5).fillEllipse(x+16,y+26,28,11);g.fillStyle(0x6b4835).fillRoundedRect(x+12,y+15,8,15,2);g.fillStyle(0x174d3a).fillCircle(x+15,y+14,16);g.fillStyle(0x2e7950).fillCircle(x+12,y+10,14);g.fillStyle(0x439b62).fillCircle(x+10,y+7,9);g.fillStyle(0x8aca81,.35).fillCircle(x+6,y+5,4);}else if(tile===3){g.fillStyle(0x236d9b).fillRect(x,y,T,T);g.fillStyle(0x368eb6,.7).fillRect(x,y+5+Math.sin(time*2+i+j)*2,T,4);g.lineStyle(1.5,0xa0dce6,.6).lineBetween(x+5,y+17+Math.sin(time*2+i)*2,x+17,y+17+Math.sin(time*2+i)*2);}}g.lineStyle(2,0xb7b98c,.65).strokeRoundedRect(10,90,370,461,7);};
 Game.prototype.drawActors=function(time){const g=this.actorGraphics;g.clear();const bob=Math.sin(time/210)*2;for(const it of this.room().items){if(it.taken)continue;let x=it.x,y=it.y+bob;g.fillStyle(0x102a2c,.32).fillEllipse(x,it.y+13,25,8);if(it.type==='gem'){g.fillStyle(0x5dd9e8,.2).fillCircle(x,y,19);g.fillStyle(0xc4faff).fillTriangle(x,y-15,x+11,y,x-11,y);g.fillStyle(0x3eafd5).fillTriangle(x,y+14,x+11,y,x-11,y);}else if(it.type==='heart'){g.fillStyle(0xf36485).fillCircle(x-6,y-4,7).fillCircle(x+6,y-4,7);g.fillTriangle(x-13,y-2,x+13,y-2,x,y+13);}else{let c={rupee:0xe5c16a,bow:0xc19a67,upgrade:0xe5f2fa,goal:this.gems>=3?0xffd974:0x83839a}[it.type]||0xffffff;g.fillStyle(c).fillRoundedRect(x-10,y-11,20,22,5);g.fillStyle(0xffffff,.55).fillRoundedRect(x-6,y-8,5,8,2);}}for(const e of this.room().enemies){if(e.hp<=0)continue;let bounce=Math.sin(time/220+e.phase)*2;g.fillStyle(0x102c2c,.35).fillEllipse(e.x,e.y+14,25,8);let c=e.flash>time?0xffffff:e.type===3?0x9154b4:e.type===1?0xe38b5b:e.type===2?0x5ba8b4:0xd85d79;g.fillStyle(c).fillRoundedRect(e.x-12,e.y-12+bounce,e.type===3?27:24,e.type===3?27:24,8);g.fillStyle(0xffffff,.3).fillEllipse(e.x-5,e.y-8+bounce,10,5);g.fillStyle(0xffffff).fillCircle(e.x-5,e.y-1+bounce,3).fillCircle(e.x+5,e.y-1+bounce,3);g.fillStyle(0x182b38).fillCircle(e.x-4,e.y-1+bounce,1.5).fillCircle(e.x+6,e.y-1+bounce,1.5);if(e.type===3){g.fillStyle(0xf6d47d).fillTriangle(e.x-11,e.y-10+bounce,e.x-5,e.y-22+bounce,e.x,e.y-10+bounce).fillTriangle(e.x+3,e.y-10+bounce,e.x+9,e.y-22+bounce,e.x+14,e.y-10+bounce);}}for(const p of this.projectiles){g.fillStyle(p.kind==='beam'?0x7deafa:p.kind==='arrow'?0xe9d19b:0x33353b,.25).fillCircle(p.x,p.y,15);g.fillStyle(p.kind==='beam'?0xc5ffff:p.kind==='arrow'?0xe9d19b:0x33353b).fillCircle(p.x,p.y,p.kind==='bomb'?10:6);if(p.kind==='beam')g.lineStyle(2,0xffffff,.9).strokeCircle(p.x,p.y,10);}for(const f of this.fx||[]){g.fillStyle(f.color,Math.min(1,f.life*3)).fillCircle(f.x,f.y,2+f.life*4);}if(time>this.invuln||Math.floor(time/90)%2===0){const moving=Math.abs(this.px-this.lastX)+Math.abs(this.py-this.lastY)>0.2;const stride=moving?Math.sin(this.walkPhase)*3:0;this.lastX=this.px;this.lastY=this.py;g.fillStyle(0x10282c,.4).fillEllipse(this.px,this.py+14,26,9);g.fillStyle(0x654a3b).fillRoundedRect(this.px-10,this.py+6+stride,8,8,2).fillRoundedRect(this.px+3,this.py+6-stride,8,8,2);g.fillStyle(0x275b55).fillRoundedRect(this.px-12,this.py-9,24,22,6);g.fillStyle(0x428e72).fillRoundedRect(this.px-9,this.py-10,18,18,4);g.fillStyle(0xecc4a0).fillRoundedRect(this.px-9,this.py-16,18,17,5);g.fillStyle(0x287c55).fillTriangle(this.px-14,this.py-13,this.px+13,this.py-13,this.px-1,this.py-29);g.fillStyle(0x174b40).fillRoundedRect(this.px-13,this.py-15,26,6,2);g.fillStyle(0x253a40).fillCircle(this.px+(this.dir==='left'?-5:5),this.py-9,1.6);g.fillStyle(0xe7d49b).fillRoundedRect(this.px-3,this.py+2,6,5,1);}if(time<this.attackUntil){let t=clamp((time-this.attackStart)/290,0,1);let angles={right:[-1.2,1.2],left:[1.95,4.35],up:[-2.8,-.4],down:[.4,2.8]};let a=angles[this.attackDir][0]+(angles[this.attackDir][1]-angles[this.attackDir][0]*1)*t;let sx=this.px+Math.cos(a)*12,sy=this.py+Math.sin(a)*12,ex=this.px+Math.cos(a)*45,ey=this.py+Math.sin(a)*45;g.lineStyle(17,0x95ecff,.13).lineBetween(sx,sy,ex,ey);g.lineStyle(8,0x7dcce2,.45).lineBetween(sx,sy,ex,ey);g.lineStyle(5,0xd6e6f2).lineBetween(sx,sy,ex,ey);g.lineStyle(2,0xffffff).lineBetween(sx,sy,ex,ey);g.fillStyle(0xffdf8c).fillCircle(sx,sy,4);}};
 
+
+// Chapter 2: hand-drawn sprite atlas, directional animation and combat feedback.
+const oldPreload=Game.prototype.preload;
+Game.prototype.preload=function(){
+ if(oldPreload)oldPreload.call(this);
+ this.load.spritesheet('hero2','assets/hero_sheet.png',{frameWidth:160,frameHeight:192});
+ for(const k of ['slime','bat','beetle','guardian'])this.load.image(k,'assets/'+k+'.png');
+};
+const v2Create=Game.prototype.create;
+Game.prototype.create=function(){
+ v2Create.call(this);
+ this.heroSprite=this.add.sprite(this.px,this.py-5,'hero2',0).setDisplaySize(40,48).setDepth(3);
+ this.enemySprites=[];
+ this.lastSpriteRoom='';
+ this.lastSpriteX=this.px;this.lastSpriteY=this.py;
+ this.spriteWalkingUntil=0;
+ this.attackSparks=this.add.graphics().setDepth(4);
+ this.add.text(195,588,'CHAPTER II · THE EMERALD WOODS',{fontFamily:'sans-serif',fontSize:'11px',fontStyle:'bold',color:'#f0d9a0'}).setOrigin(.5).setDepth(8);
+ this.syncEnemies();
+};
+Game.prototype.syncEnemies=function(){
+ for(const s of this.enemySprites||[])s.destroy();
+ this.enemySprites=[];
+ const names=['slime','beetle','bat','guardian'];
+ for(const e of this.room().enemies){
+  const sprite=this.add.image(e.x,e.y,names[e.type]||'slime').setDisplaySize(e.type===3?43:35,e.type===3?43:35).setDepth(3);
+  this.enemySprites.push({e,sprite});
+ }
+ this.lastSpriteRoom=this.rx+','+this.ry;
+};
+const v2Step=Game.prototype.step;
+Game.prototype.step=function(dir){
+ const ox=this.px,oy=this.py,room=this.rx+','+this.ry;
+ v2Step.call(this,dir);
+ if(this.px!==ox||this.py!==oy){
+  this.spriteWalkingUntil=this.time.now+185;
+  if(room===this.rx+','+this.ry){
+   this.heroSprite.x=ox;this.heroSprite.y=oy-5;
+   this.tweens.killTweensOf(this.heroSprite);
+   this.tweens.add({targets:this.heroSprite,x:this.px,y:this.py-5,duration:135,ease:'Sine.easeOut'});
+  }else{
+   this.tweens.killTweensOf(this.heroSprite);
+   this.heroSprite.setPosition(this.px,this.py-5);
+  }
+ }
+};
+const v2Hit=Game.prototype.hit;
+Game.prototype.hit=function(e,n){
+ v2Hit.call(this,e,n);
+ this.cameras.main.shake(65,.0016);
+};
+const v2Swing=Game.prototype.swing;
+Game.prototype.swing=function(){
+ const before=this.attackUntil;
+ v2Swing.call(this);
+ if(this.attackUntil!==before){
+  this.cameras.main.shake(45,.0009);
+ }
+};
+Game.prototype.drawActors=function(time){
+ const g=this.actorGraphics;g.clear();
+ if(this.lastSpriteRoom!==this.rx+','+this.ry)this.syncEnemies();
+ for(const it of this.room().items){
+  if(it.taken)continue;
+  const x=it.x,y=it.y+Math.sin(time/260)*3;
+  g.fillStyle(0x061f27,.28).fillEllipse(x,it.y+12,24,7);
+  if(it.type==='gem'){
+   g.fillStyle(0x72f7ef,.16).fillCircle(x,y,20);
+   g.fillStyle(0x98fbff).fillTriangle(x,y-14,x+10,y,x-10,y);
+   g.fillStyle(0x2aa9bd).fillTriangle(x,y+13,x+10,y,x-10,y);
+  }else if(it.type==='heart'){
+   g.fillStyle(0xf5638c).fillCircle(x-6,y-4,7).fillCircle(x+6,y-4,7);
+   g.fillTriangle(x-13,y-3,x+13,y-3,x,y+13);
+  }else{
+   g.fillStyle(({rupee:0xffd87a,bow:0xc29d6c,upgrade:0xc8f3fc,goal:this.gems>=3?0xffe28d:0x777b96})[it.type]||0xffffff);
+   g.fillRoundedRect(x-10,y-11,20,22,5);
+   g.fillStyle(0xffffff,.5).fillRect(x-6,y-8,5,6);
+  }
+ }
+ for(const {e,sprite} of this.enemySprites){
+  sprite.setVisible(e.hp>0);
+  if(e.hp<=0)continue;
+  sprite.setPosition(e.x,e.y-3+Math.sin(time/190+e.phase)*2);
+  sprite.setTint(e.flash>time?0xffffff:0xffffff);
+  sprite.setAlpha(e.flash>time?.65:1);
+  sprite.setScale((e.type===3?.24:.20)*(1+Math.sin(time/180+e.phase)*.035));
+ }
+ const dirs={down:0,left:1,right:2,up:3};
+ const walking=time<this.spriteWalkingUntil;
+ const f=walking?Math.floor(time/95)%4:0;
+ this.heroSprite.setFrame((dirs[this.dir]||0)*4+f);
+ this.heroSprite.setVisible(time>this.invuln||Math.floor(time/90)%2===0);
+ if(!this.tweens.isTweening(this.heroSprite))this.heroSprite.setPosition(this.px,this.py-5);
+ for(const p of this.projectiles){
+  if(p.kind==='beam'){
+   g.fillStyle(0x66efff,.16).fillCircle(p.x,p.y,19);
+   g.fillStyle(0xb6ffff,.7).fillCircle(p.x,p.y,10);
+   g.fillStyle(0xffffff).fillCircle(p.x,p.y,4);
+  }else{
+   g.fillStyle(p.kind==='bomb'?0x263445:0xf6dfa5).fillCircle(p.x,p.y,p.kind==='bomb'?10:5);
+  }
+ }
+ for(const f of this.fx||[]){
+  g.fillStyle(f.color,Math.min(1,f.life*3)).fillCircle(f.x,f.y,2+f.life*5);
+ }
+ if(time<this.attackUntil){
+  const t=clamp((time-this.attackStart)/290,0,1);
+  const angles={right:[-1.25,1.2],left:[1.95,4.4],up:[-2.8,-.35],down:[.35,2.8]};
+  const a=angles[this.attackDir][0]+(angles[this.attackDir][1]-angles[this.attackDir][0])*t;
+  const x1=this.heroSprite.x+Math.cos(a)*12,y1=this.heroSprite.y+Math.sin(a)*12;
+  const x2=this.heroSprite.x+Math.cos(a)*46,y2=this.heroSprite.y+Math.sin(a)*46;
+  for(let i=0;i<4;i++){
+   const aa=a-i*.14;
+   g.lineStyle(14-i*3,0x73e9ff,.11).lineBetween(this.heroSprite.x+Math.cos(aa)*19,this.heroSprite.y+Math.sin(aa)*19,this.heroSprite.x+Math.cos(aa)*49,this.heroSprite.y+Math.sin(aa)*49);
+  }
+  g.lineStyle(7,0x4d8eac,.65).lineBetween(x1,y1,x2,y2);
+  g.lineStyle(4,0xe2faff).lineBetween(x1,y1,x2,y2);
+  g.lineStyle(1.5,0xffffff).lineBetween(x1,y1,x2,y2);
+  g.fillStyle(0xffdb8e).fillCircle(x1,y1,4);
+ }
+};
+
 try{new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#101b2d',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{pixelArt:true},scene:[Game]})}catch(e){let n=document.getElementById('error');n.style.display='block';n.textContent=e.message}
